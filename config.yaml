@@ -10,20 +10,20 @@ nodes:
 
 edges:
   # メインフロー
-  - { source: Source, target: A, transfer_rate: 0.2, loss: 0.05 }
-  - { source: A, target: B, transfer_rate: 0.4, loss: 0.1 }
-  - { source: B, target: C, transfer_rate: 0.3, loss: 0.05 }
-  - { source: C, target: D, transfer_rate: 0.5, loss: 0.08 }
-  - { source: D, target: E, transfer_rate: 0.4, loss: 0.12 }
-  - { source: E, target: F, transfer_rate: 0.6, loss: 0.07 }
-  - { source: F, target: Sink, transfer_rate: 0.7, loss: 0.03 }
+  - { source: Source, target: A, transfer_rate: 0.02, loss: 0.05 }
+  - { source: A, target: B, transfer_rate: 0.04, loss: 0.1 }
+  - { source: B, target: C, transfer_rate: 0.03, loss: 0.05 }
+  - { source: C, target: D, transfer_rate: 0.05, loss: 0.08 }
+  - { source: D, target: E, transfer_rate: 0.04, loss: 0.12 }
+  - { source: E, target: F, transfer_rate: 0.06, loss: 0.07 }
+  - { source: F, target: Sink, transfer_rate: 0.07, loss: 0.03 }
 
   # 分岐フロー
-  - { source: A, target: D, transfer_rate: 0.3, loss: 0.15 }
-  - { source: B, target: E, transfer_rate: 0.2, loss: 0.1 }
-  - { source: C, target: F, transfer_rate: 0.25, loss: 0.08 }
+  - { source: A, target: D, transfer_rate: 0.03, loss: 0.15 }
+  - { source: B, target: E, transfer_rate: 0.02, loss: 0.1 }
+  - { source: C, target: F, transfer_rate: 0.025, loss: 0.08 }
 
   # フィードバックループ
-  - { source: D, target: B, transfer_rate: 0.15, loss: 0.2 }
-  - { source: E, target: C, transfer_rate: 0.18, loss: 0.15 }
-  - { source: F, target: D, transfer_rate: 0.12, loss: 0.18 }
+  - { source: D, target: B, transfer_rate: 0.015, loss: 0.2 }
+  - { source: E, target: C, transfer_rate: 0.018, loss: 0.15 }
+  - { source: F, target: D, transfer_rate: 0.012, loss: 0.18 }

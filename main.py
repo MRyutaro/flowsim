@@ -30,7 +30,7 @@ class FlowSimulator:
         self.previous_states = {}  # 前回の状態を保存
         self.stability_threshold = 1e-4  # 安定状態とみなす閾値
         self.loss_history = []  # 各ステップでの損失を記録
-        self.display_steps = 20  # 表示するステップ数
+        self.display_steps = 300  # 表示するステップ数
 
         # 初期水量を設定
         for node in self.nodes.values():
