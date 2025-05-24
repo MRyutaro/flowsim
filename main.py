@@ -1,8 +1,9 @@
-import yaml
+import argparse
 from typing import Dict, List
-import sys
-import networkx as nx
+
 import matplotlib.pyplot as plt
+import networkx as nx
+import yaml
 from pydantic import BaseModel, Field
 
 
@@ -36,14 +37,21 @@ class FlowSimulator:
             node.current = node.initial
             self.previous_states[node.id] = node.initial
 
-        # 描画の初期設定
-        plt.ion()  # インタラクティブモードをオン
-        self.fig, (self.ax1, self.ax2) = plt.subplots(
-            1, 2, figsize=(12, 6)
-        )  # 2つのサブプロットを作成
-        self.ax1.set_position([0.02, 0.1, 0.55, 0.8])  # ネットワークグラフ領域を大きく
-        self.ax2.set_position([0.65, 0.1, 0.3, 0.8])  # 損失グラフ領域を右に寄せて小さく
-        self.pos = None  # ノードの位置を保持
+        # 描画関連の変数を初期化
+        self.fig = None
+        self.ax1 = None
+        self.ax2 = None
+        self.pos = None
+
+    def init_visualization(self):
+        """グラフ描画の初期化を行う"""
+        if self.fig is None:  # 初期化されていない場合のみ実行
+            plt.ion()  # インタラクティブモードをオン
+            self.fig, (self.ax1, self.ax2) = plt.subplots(
+                1, 2, figsize=(12, 6)
+            )  # 2つのサブプロットを作成
+            self.ax1.set_position([0.02, 0.1, 0.55, 0.8])  # ネットワークグラフ領域を大きく
+            self.ax2.set_position([0.65, 0.1, 0.3, 0.8])  # 損失グラフ領域を右に寄せて小さく
 
     def is_stable(self) -> bool:
         """システムが安定状態に達したかチェック"""
@@ -93,6 +101,10 @@ class FlowSimulator:
             )
 
     def visualize(self):
+        # 初期化されていない場合は初期化を行う
+        if self.fig is None:
+            self.init_visualization()
+
         # ネットワークグラフの描画
         self.ax1.clear()
 
@@ -205,7 +217,7 @@ class FlowSimulator:
         self.ax2.legend()
 
         plt.draw()
-        plt.pause(0.00001)  # グラフの更新を確実にする
+        plt.pause(0.000001)  # グラフの更新を確実にする
 
 
 def load_config(file_path: str):
@@ -236,21 +248,36 @@ def load_config(file_path: str):
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("使用方法: python main.py <設定ファイル> <最大ステップ数>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="水フローシミュレータ - ネットワーク上の水の流れをシミュレーションします"
+    )
+    parser.add_argument("config", help="設定ファイルのパス（YAML形式）")
+    parser.add_argument("max_steps", type=int, help="シミュレーションの最大ステップ数")
+    parser.add_argument(
+        "--no-viz",
+        action="store_true",
+        help="グラフ描画を無効にする（デフォルト：描画する）",
+    )
+    parser.add_argument(
+        "--viz-interval",
+        type=int,
+        default=1,
+        help="グラフ描画の間隔（ステップ数）（デフォルト：1）",
+    )
 
-    config_file = sys.argv[1]
-    max_steps = int(sys.argv[2])
+    args = parser.parse_args()
 
-    nodes, edges = load_config(config_file)
+    nodes, edges = load_config(args.config)
     simulator = FlowSimulator(nodes, edges)
 
-    simulator.visualize()
-
-    for _ in range(max_steps):
-        simulator.step()
+    if not args.no_viz:
         simulator.visualize()
+
+    for step in range(args.max_steps):
+        simulator.step()
+
+        if not args.no_viz and step % args.viz_interval == 0:
+            simulator.visualize()
 
         # システムが安定状態に達したらループを終了
         if simulator.is_stable():
@@ -259,7 +286,12 @@ def main():
             )
             break
     else:
-        print(f"\n最大ステップ数 {max_steps} に到達しました")
+        print(f"\n最大ステップ数 {args.max_steps} に到達しました")
+
+    # 最終状態を表示
+    if not args.no_viz:
+        simulator.visualize()
+        plt.show()  # インタラクティブモードでない場合のために最後に表示を維持
 
 
 if __name__ == "__main__":
